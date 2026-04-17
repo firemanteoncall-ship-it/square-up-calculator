@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Square-Up Calculator</title>
+  <meta name="theme-color" content="#0F172A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SquareCalc" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="square-up-calculator.webmanifest" />
+  <link rel="icon" href="square-up-icon.svg" type="image/svg+xml" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            foundation: "#9A3412",
+            blueprint: "#0F172A",
+            pine: "#1F5F4A",
+            sand: "#FFF7ED"
+          },
+          boxShadow: {
+            glow: "0 20px 60px rgba(15, 23, 42, 0.12)"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    html {
+      background: #f5f5f4;
+    }
+
+    body {
+      padding-top: max(1rem, env(safe-area-inset-top));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      padding-left: max(1rem, env(safe-area-inset-left));
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    input,
+    select,
+    button,
+    a {
+      touch-action: manipulation;
+    }
+
+    input,
+    select {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900">
+  <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.16),_transparent_30%),linear-gradient(to_bottom,_#fffaf5,_#f1f5f9)]"></div>
+
+  <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <section class="overflow-hidden rounded-[2rem] bg-white/90 shadow-glow ring-1 ring-slate-200 backdrop-blur">
+      <div class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+        <div class="p-8 sm:p-10 lg:p-12">
+          <p class="inline-flex rounded-full bg-amber-100 px-4 py-1 text-sm font-semibold text-foundation">
+            Layout Tool
+          </p>
+          <h1 class="mt-4 text-4xl font-black tracking-tight text-blueprint sm:text-5xl">
+            Square-Up Calculator
+          </h1>
+          <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+            Enter length and width, then use the diagonal target to square up a building, slab, or layout in the field.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#calculator" class="inline-flex items-center rounded-full bg-blueprint px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+              Open Calculator
+            </a>
+            <span class="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700">
+              Standalone field tool
+            </span>
+          </div>
+        </div>
+
+        <div class="bg-blueprint p-8 text-white sm:p-10">
+          <h2 class="text-2xl font-bold">Field steps</h2>
+          <div class="mt-6 grid gap-4">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-sm text-amber-200">1</p>
+              <p class="mt-1 font-semibold">Enter the outside dimensions</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-sm text-amber-200">2</p>
+              <p class="mt-1 font-semibold">Measure both corner-to-corner diagonals</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-sm text-amber-200">3</p>
+              <p class="mt-1 font-semibold">Adjust until both diagonals match</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-[2rem] border border-amber-200 bg-amber-50 p-6 text-slate-800 shadow-sm">
+      <h2 class="text-xl font-black text-blueprint">Use on iPhone</h2>
+      <p class="mt-3 text-sm leading-7 text-slate-700 sm:text-base">
+        Open this page in Safari, tap the Share button, then choose Add to Home Screen. It will open like its own app and keep working with your last saved measurements.
+      </p>
+    </section>
+
+    <section id="calculator" class="mt-10 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-3xl font-black text-blueprint">Enter Building Size</h2>
+          <button
+            type="button"
+            id="clear-all-measurements"
+            class="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            Clear all
+          </button>
+        </div>
+
+        <form class="mt-8 grid gap-8">
+          <div class="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <h3 class="text-xl font-bold text-blueprint">Length</h3>
+
+            <div class="mt-5 grid gap-4 sm:grid-cols-3">
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Feet</span>
+                <input id="square-length-feet" type="number" min="0" step="1" value="24" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Inches</span>
+                <input id="square-length-inches" type="number" min="0" step="1" value="0" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Fractional inch</span>
+                <select id="square-length-fraction" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white">
+                  <option value="0">0</option>
+                  <option value="0.0625">1/16</option>
+                  <option value="0.125">1/8</option>
+                  <option value="0.1875">3/16</option>
+                  <option value="0.25">1/4</option>
+                  <option value="0.3125">5/16</option>
+                  <option value="0.375">3/8</option>
+                  <option value="0.4375">7/16</option>
+                  <option value="0.5">1/2</option>
+                  <option value="0.5625">9/16</option>
+                  <option value="0.625">5/8</option>
+                  <option value="0.6875">11/16</option>
+                  <option value="0.75">3/4</option>
+                  <option value="0.8125">13/16</option>
+                  <option value="0.875">7/8</option>
+                  <option value="0.9375">15/16</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <h3 class="text-xl font-bold text-blueprint">Width</h3>
+
+            <div class="mt-5 grid gap-4 sm:grid-cols-3">
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Feet</span>
+                <input id="square-width-feet" type="number" min="0" step="1" value="18" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Inches</span>
+                <input id="square-width-inches" type="number" min="0" step="1" value="0" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white" />
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700">Fractional inch</span>
+                <select id="square-width-fraction" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blueprint focus:bg-white">
+                  <option value="0">0</option>
+                  <option value="0.0625">1/16</option>
+                  <option value="0.125">1/8</option>
+                  <option value="0.1875">3/16</option>
+                  <option value="0.25">1/4</option>
+                  <option value="0.3125">5/16</option>
+                  <option value="0.375">3/8</option>
+                  <option value="0.4375">7/16</option>
+                  <option value="0.5">1/2</option>
+                  <option value="0.5625">9/16</option>
+                  <option value="0.625">5/8</option>
+                  <option value="0.6875">11/16</option>
+                  <option value="0.75">3/4</option>
+                  <option value="0.8125">13/16</option>
+                  <option value="0.875">7/8</option>
+                  <option value="0.9375">15/16</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="space-y-6">
+        <section class="rounded-[2rem] bg-blueprint p-8 text-white shadow-sm">
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-200">Results</p>
+          <h3 id="square-diagonal-decimal" class="mt-3 text-4xl font-black">0.000 ft</h3>
+          <p class="mt-3 max-w-xl text-slate-300">
+            Compare this target against the measured diagonals in the field.
+          </p>
+
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-sm text-slate-300">Diagonal in feet and inches</p>
+              <p id="square-diagonal-fractional" class="mt-2 text-2xl font-bold">0' 0"</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-sm text-slate-300">Square-up note</p>
+              <p id="square-diagonal-note" class="mt-2 text-lg font-bold">Enter length and width to calculate.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+          <h3 class="text-2xl font-black text-blueprint">Quick reminder</h3>
+          <div class="mt-5 grid gap-4">
+            <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+              <p class="font-semibold text-slate-800">If both diagonals match</p>
+              <p class="mt-1 text-slate-600">Your rectangle is square.</p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
+              <p class="font-semibold text-foundation">If they do not match</p>
+              <p class="mt-1 text-slate-700">Shift the layout until both measured diagonals match the target and each other.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const squareUpStorageKey = "square-up-calculator-values";
+    const squareLengthFeetInput = document.getElementById("square-length-feet");
+    const squareLengthInchesInput = document.getElementById("square-length-inches");
+    const squareLengthFractionInput = document.getElementById("square-length-fraction");
+    const squareWidthFeetInput = document.getElementById("square-width-feet");
+    const squareWidthInchesInput = document.getElementById("square-width-inches");
+    const squareWidthFractionInput = document.getElementById("square-width-fraction");
+    const clearAllMeasurementsButton = document.getElementById("clear-all-measurements");
+    const squareDiagonalDecimalOutput = document.getElementById("square-diagonal-decimal");
+    const squareDiagonalFractionalOutput = document.getElementById("square-diagonal-fractional");
+    const squareDiagonalNoteOutput = document.getElementById("square-diagonal-note");
+
+    function gcd(a, b) {
+      return b ? gcd(b, a % b) : a;
+    }
+
+    function getFeetAndInchesAsFeet(feet, inches, fractionalInches) {
+      const parsedFeet = Number(feet) || 0;
+      const parsedInches = Number(inches) || 0;
+      const parsedFractionalInches = Number(fractionalInches) || 0;
+      return parsedFeet + (parsedInches + parsedFractionalInches) / 12;
+    }
+
+    function formatNumber(value, digits) {
+      return Number(value).toFixed(digits);
+    }
+
+    function formatFeetAsFractionalImperial(decimalFeet) {
+      let wholeFeet = Math.floor(decimalFeet);
+      let inches = (decimalFeet - wholeFeet) * 12;
+      let wholeInches = Math.floor(inches);
+      let numerator = Math.round((inches - wholeInches) * 16);
+      let denominator = 16;
+
+      if (numerator === denominator) {
+        wholeInches += 1;
+        numerator = 0;
+      }
+
+      if (wholeInches === 12) {
+        wholeFeet += 1;
+        wholeInches = 0;
+      }
+
+      if (numerator !== 0) {
+        const divisor = gcd(numerator, denominator);
+        numerator /= divisor;
+        denominator /= divisor;
+      }
+
+      return numerator === 0
+        ? `${wholeFeet}' ${wholeInches}"`
+        : `${wholeFeet}' ${wholeInches} ${numerator}/${denominator}"`;
+    }
+
+    function saveSquareUpValues() {
+      const values = {
+        lengthFeet: squareLengthFeetInput.value,
+        lengthInches: squareLengthInchesInput.value,
+        lengthFraction: squareLengthFractionInput.value,
+        widthFeet: squareWidthFeetInput.value,
+        widthInches: squareWidthInchesInput.value,
+        widthFraction: squareWidthFractionInput.value
+      };
+
+      localStorage.setItem(squareUpStorageKey, JSON.stringify(values));
+    }
+
+    function loadSquareUpValues() {
+      const savedValues = localStorage.getItem(squareUpStorageKey);
+
+      if (!savedValues) {
+        return;
+      }
+
+      try {
+        const values = JSON.parse(savedValues);
+        squareLengthFeetInput.value = values.lengthFeet ?? squareLengthFeetInput.value;
+        squareLengthInchesInput.value = values.lengthInches ?? squareLengthInchesInput.value;
+        squareLengthFractionInput.value = values.lengthFraction ?? squareLengthFractionInput.value;
+        squareWidthFeetInput.value = values.widthFeet ?? squareWidthFeetInput.value;
+        squareWidthInchesInput.value = values.widthInches ?? squareWidthInchesInput.value;
+        squareWidthFractionInput.value = values.widthFraction ?? squareWidthFractionInput.value;
+      } catch (error) {
+        localStorage.removeItem(squareUpStorageKey);
+      }
+    }
+
+    function updateSquareUpCalculator() {
+      const lengthFeet = getFeetAndInchesAsFeet(
+        squareLengthFeetInput.value,
+        squareLengthInchesInput.value,
+        squareLengthFractionInput.value
+      );
+      const widthFeet = getFeetAndInchesAsFeet(
+        squareWidthFeetInput.value,
+        squareWidthInchesInput.value,
+        squareWidthFractionInput.value
+      );
+
+      if (lengthFeet <= 0 || widthFeet <= 0) {
+        squareDiagonalDecimalOutput.textContent = "0.000 ft";
+        squareDiagonalFractionalOutput.textContent = "0' 0\"";
+        squareDiagonalNoteOutput.textContent = "Enter length and width to calculate.";
+        return;
+      }
+
+      const diagonalFeet = Math.sqrt(lengthFeet * lengthFeet + widthFeet * widthFeet);
+
+      squareDiagonalDecimalOutput.textContent = formatNumber(diagonalFeet, 3) + " ft";
+      squareDiagonalFractionalOutput.textContent = formatFeetAsFractionalImperial(diagonalFeet);
+      squareDiagonalNoteOutput.textContent = "Match both diagonals to this target for a square layout.";
+      saveSquareUpValues();
+    }
+
+    [
+      squareLengthFeetInput,
+      squareLengthInchesInput,
+      squareLengthFractionInput,
+      squareWidthFeetInput,
+      squareWidthInchesInput,
+      squareWidthFractionInput
+    ].forEach((input) => {
+      input.addEventListener("input", updateSquareUpCalculator);
+      input.addEventListener("change", updateSquareUpCalculator);
+    });
+
+    clearAllMeasurementsButton.addEventListener("click", () => {
+      squareLengthFeetInput.value = "";
+      squareLengthInchesInput.value = "";
+      squareLengthFractionInput.value = "0";
+      squareWidthFeetInput.value = "";
+      squareWidthInchesInput.value = "";
+      squareWidthFractionInput.value = "0";
+      localStorage.removeItem(squareUpStorageKey);
+      updateSquareUpCalculator();
+    });
+
+    loadSquareUpValues();
+    updateSquareUpCalculator();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./square-up-sw.js").catch(() => {
+          // Offline support is optional. The calculator still works without it.
+        });
+      });
+    }
+  </script>
+</body>
+</html>
